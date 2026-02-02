@@ -375,8 +375,8 @@ void DockerManagerFrame::OnRemoveImage(wxCommandEvent& event) {
     wxString id = imagesList->GetItemText(selected, 0);
     
     int response = wxMessageBox(
-        wxString::Format(wxT("Удалить образ %s?"), id),
-        wxT("Подтверждение"),
+        wxString::Format(wxT("Remove image %s?"), id),
+        wxT("Confirmation"),
         wxYES_NO | wxICON_WARNING,
         this
     );
@@ -384,7 +384,7 @@ void DockerManagerFrame::OnRemoveImage(wxCommandEvent& event) {
     if (response == wxYES) {
         DockerCommands::RemoveImage(std::string(id.mb_str()));
         RefreshAllAsync();
-        wxMessageBox(wxT("Образ удалён"), wxT("Успех"), 
+        wxMessageBox(wxT("Image removed"), wxT("Success"), 
                      wxOK | wxICON_INFORMATION);
     }
 }
@@ -397,8 +397,8 @@ void DockerManagerFrame::OnRemoveVolume(wxCommandEvent& event) {
     wxString name = volumesList->GetItemText(selected, 0);
     
     int response = wxMessageBox(
-        wxString::Format(wxT("Удалить volume %s?"), name),
-        wxT("Подтверждение"),
+        wxString::Format(wxT("Remove volume %s?"), name),
+        wxT("Confirmation"),
         wxYES_NO | wxICON_WARNING,
         this
     );
@@ -406,20 +406,20 @@ void DockerManagerFrame::OnRemoveVolume(wxCommandEvent& event) {
     if (response == wxYES) {
         DockerCommands::RemoveVolume(std::string(name.mb_str()));
         RefreshAllAsync();
-        wxMessageBox(wxT("Volume удалён"), wxT("Успех"), 
+        wxMessageBox(wxT("Volume removed"), wxT("Success"), 
                      wxOK | wxICON_INFORMATION);
     }
 }
 
 void DockerManagerFrame::OnPruneAll(wxCommandEvent& event) {
     int response = wxMessageBox(
-        wxT("ВНИМАНИЕ! Это удалит:\n"
-            "- Все остановленные контейнеры\n"
-            "- Все неиспользуемые образы\n"
-            "- Все неиспользуемые volumes\n"
-            "- Весь build cache\n\n"
-            "Продолжить?"),
-        wxT("Подтверждение полной очистки"),
+        wxT("WARNING! This will remove:\n"
+            "- All stopped containers\n"
+            "- All unused images\n"
+            "- All unused volumes\n"
+            "- All build cache\n\n"
+            "Continue?"),
+        wxT("Confirmation"),
         wxYES_NO | wxICON_WARNING,
         this
     );
