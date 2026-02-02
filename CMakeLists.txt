@@ -1,27 +1,18 @@
 cmake_minimum_required(VERSION 3.10)
-project(DockerManager)
+project(DockerManager CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(wxWidgets_CONFIG_EXECUTABLE /usr/bin/wx-config)
+
 find_package(wxWidgets REQUIRED COMPONENTS core base)
+include(${wxWidgets_USE_FILE})
+include_directories(${wxWidgets_INCLUDE_DIRS})
 
-if(wxWidgets_FOUND)
-    include(${wxWidgets_USE_FILE})
-else()
-    message(FATAL_ERROR "wxWidgets не найден! Установите: sudo apt-get install libwxgtk3.0-gtk3-dev")
-endif()
-
-set(SOURCESокск 
-    src/docker_manager.cpp
-)
-
-set(HEADERS
-    src/docker_manager.h
-)
-
-add_executable(docker_manager ${SOURCES} ${HEADERS})
-
+add_executable(docker_manager src/docker_manager.cpp)
 target_link_libraries(docker_manager ${wxWidgets_LIBRARIES})
 
 add_custom_command(TARGET docker_manager POST_BUILD
