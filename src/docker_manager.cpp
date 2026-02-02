@@ -339,7 +339,7 @@ void DockerManagerFrame::OnStopAll(wxCommandEvent& event) {
         DockerCommands::StopAllContainers();
         wxSleep(2);
         RefreshAllAsync();
-        wxMessageBox(wxT("Все контейнеры остановлены"), wxT("Успех"), 
+        wxMessageBox(wxT("All containers stopped"), wxT("Success"), 
                      wxOK | wxICON_INFORMATION);
     }
 }
@@ -353,8 +353,8 @@ void DockerManagerFrame::OnRemoveContainer(wxCommandEvent& event) {
     wxString name = stoppedList->GetItemText(selected, 1);
     
     int response = wxMessageBox(
-        wxString::Format(wxT("Удалить контейнер '%s' (%s)?"), name, id),
-        wxT("Подтверждение"),
+        wxString::Format(wxT("Remove container '%s' (%s)?"), name, id),
+        wxT("Confirmation"),
         wxYES_NO | wxICON_WARNING,
         this
     );
@@ -362,7 +362,7 @@ void DockerManagerFrame::OnRemoveContainer(wxCommandEvent& event) {
     if (response == wxYES) {
         DockerCommands::RemoveContainer(std::string(id.mb_str()));
         RefreshAllAsync();
-        wxMessageBox(wxT("Контейнер удалён"), wxT("Успех"), 
+        wxMessageBox(wxT("Container removed"), wxT("Success"), 
                      wxOK | wxICON_INFORMATION);
     }
 }
