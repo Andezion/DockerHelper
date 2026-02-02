@@ -2,6 +2,8 @@
 build/
 build_release/
 build_static/
+dist/
+.cache/
 
 # Исполняемые файлы
 docker_manager
@@ -32,3 +34,4 @@ Makefile
 
 # Логи
 *.log
+
