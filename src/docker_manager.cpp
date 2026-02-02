@@ -129,11 +129,11 @@ void DockerManagerFrame::CreateRunningPanel() {
     
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
     
-    stopButton = new wxButton(runningPanel, ID_STOP, wxT("Остановить контейнер"));
+    stopButton = new wxButton(runningPanel, ID_STOP, wxT("Stop container"));
     stopButton->Enable(false);
     buttonSizer->Add(stopButton, 0, wxALL, 5);
     
-    stopAllButton = new wxButton(runningPanel, ID_STOP_ALL, wxT("Остановить ВСЕ"));
+    stopAllButton = new wxButton(runningPanel, ID_STOP_ALL, wxT("Stop ALL"));
     stopAllButton->SetBackgroundColour(wxColour(255, 165, 0));
     buttonSizer->Add(stopAllButton, 0, wxALL, 5);
     
