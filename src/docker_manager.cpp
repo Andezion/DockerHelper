@@ -146,14 +146,14 @@ void DockerManagerFrame::CreateCleanupPanel() {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     
     wxStaticBoxSizer* stoppedBox = new wxStaticBoxSizer(wxVERTICAL, cleanupPanel, 
-                                                         wxT("Остановленные контейнеры"));
+                                                         wxT("Stopped containers"));
     stoppedList = new wxListCtrl(cleanupPanel, ID_STOPPED_LIST, 
                                   wxDefaultPosition, wxDefaultSize,
                                   wxLC_REPORT | wxLC_SINGLE_SEL);
     stoppedList->AppendColumn(wxT("ID"), wxLIST_FORMAT_LEFT, 120);
-    stoppedList->AppendColumn(wxT("Имя"), wxLIST_FORMAT_LEFT, 200);
-    stoppedList->AppendColumn(wxT("Статус"), wxLIST_FORMAT_LEFT, 200);
-    stoppedList->AppendColumn(wxT("Образ"), wxLIST_FORMAT_LEFT, 250);
+    stoppedList->AppendColumn(wxT("Name"), wxLIST_FORMAT_LEFT, 200);
+    stoppedList->AppendColumn(wxT("Status"), wxLIST_FORMAT_LEFT, 200);
+    stoppedList->AppendColumn(wxT("Image"), wxLIST_FORMAT_LEFT, 250);
     
     stoppedBox->Add(stoppedList, 1, wxEXPAND | wxALL, 5);
     
