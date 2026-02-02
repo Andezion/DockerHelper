@@ -1,10 +1,10 @@
 # Docker Manager
 
-Графический менеджер для управления Docker контейнерами, образами и томами.
+A graphical manager for managing Docker containers, images, and volumes.
 
-## Быстрый старт для разработчиков
+## Quick start for developers
 
-### Сборка проекта
+### Building the project
 
 ```bash
 mkdir build && cd build
@@ -12,26 +12,26 @@ cmake ..
 make
 ```
 
-### Запуск
+### Running
 
 ```bash
 ./build/docker_manager
 ```
 
-## Создание портативного пакета для распространения
+## Creating a portable package for distribution
 
-Если ты хочешь поделиться программой с другими, чтобы они могли **просто скачать и запустить** без компиляции:
+If you want to share the program with others so they can **simply download and run** it without compiling:
 
-### 1. Создай портативный пакет
+### 1. Create a portable package
 
 ```bash
 chmod +x create_portable_package.sh
 ./create_portable_package.sh
 ```
 
-Это создаст архив `dist/docker-manager-X.X.X-linux-x86_64.tar.gz`, который можно распространять.
+This will create an archive `dist/docker-manager-X.X.X-linux-x86_64.tar.gz` that can be distributed.
 
-### 2. Пользователи просто распаковывают и запускают
+### 2. Users simply unpack and run
 
 ```bash
 tar -xzf docker-manager-1.0.0-linux-x86_64.tar.gz
@@ -39,27 +39,27 @@ cd docker-manager-1.0.0-linux-x86_64
 ./docker-manager.sh
 ```
 
-**Вот и всё!** Никакой компиляции, никаких сложных зависимостей.
+**That's it!** No compilation, no complex dependencies.
 
-## Установка в систему (опционально)
+## System installation (optional)
 
-Если хочешь установить в систему для всех пользователей:
+If you want to install it system-wide for all users:
 
 ```bash
 chmod +x install_system_wide.sh
 sudo ./install_system_wide.sh
 ```
 
-После этого можно запускать командой `docker-manager` из любого места.
+After that, you can run it from anywhere with the `docker-manager` command.
 
-## Требования
+## Requirements
 
-### Для конечных пользователей (запуск готового пакета):
-- Docker установлен и запущен
+### For end users (running the ready-made package):
+- Docker installed and running
 - Linux x86_64 (64-bit)
-- wxWidgets 3.0+ (обычно уже есть в системе)
+- wxWidgets 3.0+ (usually already installed on the system)
 
-Если wxWidgets отсутствует:
+If wxWidgets is not present:
 ```bash
 # Ubuntu/Debian
 sudo apt-get install libwxgtk3.0-gtk3-0v5
@@ -70,6 +70,7 @@ sudo dnf install wxGTK3
 # Arch Linux
 sudo pacman -S wxgtk3
 ```
+
 
 ### For developers (building from source):
 - CMake 3.10+
