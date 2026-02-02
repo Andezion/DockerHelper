@@ -71,63 +71,64 @@ sudo dnf install wxGTK3
 sudo pacman -S wxgtk3
 ```
 
-### Для разработчиков (сборка из исходников):
+### For developers (building from source):
 - CMake 3.10+
 - C++11 compiler
-- wxWidgets 3.0+ с dev пакетами
+- wxWidgets 3.0+ with dev packages
 - Docker
 
-## Возможности
+## Features
 
-- Мониторинг контейнеров в реальном времени
-- Остановка контейнеров (один или все)
-- Удаление контейнеров, образов и томов
-- Очистка неиспользуемых ресурсов
-- Отображение системной информации Docker
-- Автоматическое обновление каждые 5 секунд
+- Real-time container monitoring
+- Stop containers (one or all)
+- Delete containers, images, and volumes
+- Clean up unused resources
+- Display Docker system information
+- Automatic refresh every 5 seconds
 
-## Структура проекта
+## Project structure
 
 ```
 Docker/
-├── src/                      # Исходный код
-│   ├── docker_manager.cpp    # Главный файл с GUI
+├── src/                      # Source code
+│   ├── docker_manager.cpp    # Main file with GUI
 │   ├── docker_manager.h
-│   ├── docker_commands.cpp   # Docker команды
+│   ├── docker_commands.cpp   # Docker commands
 │   └── docker_commands.h
 ├── scripts/
-│   └── docker_info.sh        # Вспомогательный скрипт
-├── build_static.sh           # Сборка оптимизированного бинарника
-├── create_portable_package.sh # Создание портативного пакета
-├── install_system_wide.sh    # Установка в систему
+│   └── docker_info.sh        # Auxiliary script
+├── build_static.sh           # Build optimized binary
+├── create_portable_package.sh # Create portable package
+├── install_system_wide.sh    # Install to system
 ├── CMakeLists.txt
 └── README.md
 ```
 
-## Права доступа к Docker
+## Docker access rights
 
-Пользователь должен иметь права на использование Docker:
+The user must have rights to use Docker:
 
 ```bash
-# Добавить пользователя в группу docker
+# Add user to the docker group
 sudo usermod -aG docker $USER
 
-# Перелогиниться или выполнить
+# Log out and log back in or execute
 newgrp docker
 ```
 
-## Разработка
+## Development
 
-### Пересборка
+### Rebuild
 
 ```bash
 cd build
 make
 ```
 
-### Очистка
+### Cleanup
 
 ```bash
 rm -rf build
 ```
+
 
