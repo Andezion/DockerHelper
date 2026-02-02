@@ -55,7 +55,7 @@ wxBEGIN_EVENT_TABLE(DockerManagerFrame, wxFrame)
 wxEND_EVENT_TABLE()
 
 DockerManagerFrame::DockerManagerFrame(const wxString& title)
-    : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(1000, 750)), 
+    : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(1000, 800)), 
       isUpdating(false) {
     
     wxPanel* mainPanel = new wxPanel(this);
