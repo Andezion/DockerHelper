@@ -12,7 +12,11 @@ find_package(wxWidgets REQUIRED COMPONENTS core base)
 include(${wxWidgets_USE_FILE})
 include_directories(${wxWidgets_INCLUDE_DIRS})
 
-add_executable(docker_manager src/docker_manager.cpp)
+add_executable(docker_manager 
+    src/docker_manager.cpp
+    src/docker_commands.cpp
+)
+
 target_link_libraries(docker_manager ${wxWidgets_LIBRARIES})
 
 add_custom_command(TARGET docker_manager POST_BUILD
