@@ -176,29 +176,29 @@ void DockerManagerFrame::CreateCleanupPanel() {
     imagesBox->Add(imagesList, 0, wxEXPAND | wxALL, 5);
     
     removeImageButton = new wxButton(cleanupPanel, ID_REMOVE_IMAGE, 
-                                      wxT("Удалить образ"));
+                                      wxT("Remove image"));
     removeImageButton->Enable(false);
     imagesBox->Add(removeImageButton, 0, wxALIGN_CENTER | wxALL, 5);
     mainSizer->Add(imagesBox, 0, wxEXPAND | wxALL, 5);
     
     wxStaticBoxSizer* volumesBox = new wxStaticBoxSizer(wxVERTICAL, cleanupPanel,
-                                                         wxT("Неиспользуемые volumes"));
+                                                         wxT("Unused volumes"));
     volumesList = new wxListCtrl(cleanupPanel, ID_VOLUMES_LIST, 
                                   wxDefaultPosition, wxSize(-1, 80),
                                   wxLC_REPORT | wxLC_SINGLE_SEL);
-    volumesList->AppendColumn(wxT("Имя"), wxLIST_FORMAT_LEFT, 400);
-    volumesList->AppendColumn(wxT("Драйвер"), wxLIST_FORMAT_LEFT, 150);
+    volumesList->AppendColumn(wxT("Name"), wxLIST_FORMAT_LEFT, 400);
+    volumesList->AppendColumn(wxT("Driver"), wxLIST_FORMAT_LEFT, 150);
     
     volumesBox->Add(volumesList, 0, wxEXPAND | wxALL, 5);
     
     removeVolumeButton = new wxButton(cleanupPanel, ID_REMOVE_VOLUME, 
-                                       wxT("Удалить volume"));
+                                       wxT("Remove volume"));
     removeVolumeButton->Enable(false);
     volumesBox->Add(removeVolumeButton, 0, wxALIGN_CENTER | wxALL, 5);
     mainSizer->Add(volumesBox, 0, wxEXPAND | wxALL, 5);
     
     pruneAllButton = new wxButton(cleanupPanel, ID_PRUNE_ALL, 
-                                   wxT("ОЧИСТИТЬ ВСЁ (Docker Prune)"));
+                                   wxT("PRUNE ALL (Docker Prune)"));
     pruneAllButton->SetBackgroundColour(*wxRED);
     pruneAllButton->SetForegroundColour(*wxWHITE);
     mainSizer->Add(pruneAllButton, 0, wxALIGN_CENTER | wxALL, 5);
