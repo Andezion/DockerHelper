@@ -296,9 +296,9 @@ void DockerManagerFrame::PopulateUnusedVolumes(
 
 void DockerManagerFrame::UpdateSystemInfoUI(const SystemInfo& info) {
     cpuLabel->SetLabel(wxString::Format(wxT("CPU: %.1f%%"), info.cpu_usage));
-    memLabel->SetLabel(wxString::Format(wxT("Память: %s"), 
+    memLabel->SetLabel(wxString::Format(wxT("Memory: %s"), 
                        wxString::FromUTF8(info.mem_usage.c_str())));
-    containersLabel->SetLabel(wxString::Format(wxT("Контейнеров: %d"), 
+    containersLabel->SetLabel(wxString::Format(wxT("Containers: %d"), 
                               info.container_count));
 }
 
