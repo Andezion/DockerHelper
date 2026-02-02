@@ -425,12 +425,12 @@ void DockerManagerFrame::OnPruneAll(wxCommandEvent& event) {
     );
     
     if (response == wxYES) {
-        wxMessageBox(wxT("Очистка началась, это может занять время..."), 
-                     wxT("Информация"), wxOK | wxICON_INFORMATION);
+        wxMessageBox(wxT("Pruning started, this may take some time..."), 
+                     wxT("Information"), wxOK | wxICON_INFORMATION);
         DockerCommands::PruneAll();
         wxSleep(2);
         RefreshAllAsync();
-        wxMessageBox(wxT("Очистка завершена!"), wxT("Успех"), 
+        wxMessageBox(wxT("Pruning completed!"), wxT("Success"), 
                      wxOK | wxICON_INFORMATION);
     }
 }
