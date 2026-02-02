@@ -321,16 +321,16 @@ void DockerManagerFrame::OnStop(wxCommandEvent& event) {
         DockerCommands::StopContainer(std::string(id.mb_str()));
         wxSleep(1);
         RefreshAllAsync();
-        wxMessageBox(wxT("Контейнер остановлен"), wxT("Успех"), 
+        wxMessageBox(wxT("Container stopped"), wxT("Success"), 
                      wxOK | wxICON_INFORMATION);
     }
 }
 
 void DockerManagerFrame::OnStopAll(wxCommandEvent& event) {
     int response = wxMessageBox(
-        wxT("ВНИМАНИЕ! Остановить ВСЕ запущенные контейнеры?\n\n"
-            "Это действие затронет все активные контейнеры!"),
-        wxT("Подтверждение"),
+        wxT("WARNING! Stop ALL running containers?\n\n"
+            "This action will affect all active containers!"),
+        wxT("Confirmation"),
         wxYES_NO | wxICON_WARNING,
         this
     );
