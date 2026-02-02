@@ -94,11 +94,11 @@ DockerManagerFrame::~DockerManagerFrame() {
 
 void DockerManagerFrame::CreateSystemInfoPanel(wxPanel* parent, wxSizer* sizer) {
     wxStaticBoxSizer* infoBox = new wxStaticBoxSizer(wxHORIZONTAL, parent, 
-                                                      wxT("Системная информация"));
+                                                      wxT("System Information"));
     
     cpuLabel = new wxStaticText(parent, wxID_ANY, wxT("CPU: 0%"));
-    memLabel = new wxStaticText(parent, wxID_ANY, wxT("Память: 0"));
-    containersLabel = new wxStaticText(parent, wxID_ANY, wxT("Контейнеров: 0"));
+    memLabel = new wxStaticText(parent, wxID_ANY, wxT("Memory: 0"));
+    containersLabel = new wxStaticText(parent, wxID_ANY, wxT("Containers: 0"));
     
     wxFont boldFont = cpuLabel->GetFont();
     boldFont.SetWeight(wxFONTWEIGHT_BOLD);
@@ -121,9 +121,9 @@ void DockerManagerFrame::CreateRunningPanel() {
                                   wxDefaultPosition, wxDefaultSize, 
                                   wxLC_REPORT | wxLC_SINGLE_SEL);
     runningList->AppendColumn(wxT("ID"), wxLIST_FORMAT_LEFT, 120);
-    runningList->AppendColumn(wxT("Имя"), wxLIST_FORMAT_LEFT, 200);
-    runningList->AppendColumn(wxT("Статус"), wxLIST_FORMAT_LEFT, 250);
-    runningList->AppendColumn(wxT("Образ"), wxLIST_FORMAT_LEFT, 300);
+    runningList->AppendColumn(wxT("Name"), wxLIST_FORMAT_LEFT, 200);
+    runningList->AppendColumn(wxT("Status"), wxLIST_FORMAT_LEFT, 250);
+    runningList->AppendColumn(wxT("Image"), wxLIST_FORMAT_LEFT, 300);
     
     sizer->Add(runningList, 1, wxEXPAND | wxALL, 5);
     
