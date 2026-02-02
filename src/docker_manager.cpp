@@ -161,41 +161,41 @@ void DockerManagerFrame::CreateCleanupPanel() {
                                           wxT("Удалить контейнер"));
     removeContainerButton->Enable(false);
     stoppedBox->Add(removeContainerButton, 0, wxALIGN_CENTER | wxALL, 5);
-    mainSizer->Add(stoppedBox, 2, wxEXPAND | wxALL, 5);
+    mainSizer->Add(stoppedBox, 3, wxEXPAND | wxALL, 5);
     
     wxStaticBoxSizer* imagesBox = new wxStaticBoxSizer(wxVERTICAL, cleanupPanel,
                                                         wxT("Неиспользуемые образы"));
     imagesList = new wxListCtrl(cleanupPanel, ID_IMAGES_LIST, 
-                                 wxDefaultPosition, wxDefaultSize,
+                                 wxDefaultPosition, wxSize(-1, 120),
                                  wxLC_REPORT | wxLC_SINGLE_SEL);
     imagesList->AppendColumn(wxT("ID"), wxLIST_FORMAT_LEFT, 120);
     imagesList->AppendColumn(wxT("Репозиторий"), wxLIST_FORMAT_LEFT, 250);
     imagesList->AppendColumn(wxT("Тег"), wxLIST_FORMAT_LEFT, 100);
     imagesList->AppendColumn(wxT("Размер"), wxLIST_FORMAT_LEFT, 100);
     
-    imagesBox->Add(imagesList, 1, wxEXPAND | wxALL, 5);
+    imagesBox->Add(imagesList, 0, wxEXPAND | wxALL, 5);
     
     removeImageButton = new wxButton(cleanupPanel, ID_REMOVE_IMAGE, 
                                       wxT("Удалить образ"));
     removeImageButton->Enable(false);
     imagesBox->Add(removeImageButton, 0, wxALIGN_CENTER | wxALL, 5);
-    mainSizer->Add(imagesBox, 2, wxEXPAND | wxALL, 5);
+    mainSizer->Add(imagesBox, 0, wxEXPAND | wxALL, 5);
     
     wxStaticBoxSizer* volumesBox = new wxStaticBoxSizer(wxVERTICAL, cleanupPanel,
                                                          wxT("Неиспользуемые volumes"));
     volumesList = new wxListCtrl(cleanupPanel, ID_VOLUMES_LIST, 
-                                  wxDefaultPosition, wxDefaultSize,
+                                  wxDefaultPosition, wxSize(-1, 80),
                                   wxLC_REPORT | wxLC_SINGLE_SEL);
     volumesList->AppendColumn(wxT("Имя"), wxLIST_FORMAT_LEFT, 400);
     volumesList->AppendColumn(wxT("Драйвер"), wxLIST_FORMAT_LEFT, 150);
     
-    volumesBox->Add(volumesList, 1, wxEXPAND | wxALL, 5);
+    volumesBox->Add(volumesList, 0, wxEXPAND | wxALL, 5);
     
     removeVolumeButton = new wxButton(cleanupPanel, ID_REMOVE_VOLUME, 
                                        wxT("Удалить volume"));
     removeVolumeButton->Enable(false);
     volumesBox->Add(removeVolumeButton, 0, wxALIGN_CENTER | wxALL, 5);
-    mainSizer->Add(volumesBox, 1, wxEXPAND | wxALL, 5);
+    mainSizer->Add(volumesBox, 0, wxEXPAND | wxALL, 5);
     
     pruneAllButton = new wxButton(cleanupPanel, ID_PRUNE_ALL, 
                                    wxT("ОЧИСТИТЬ ВСЁ (Docker Prune)"));
