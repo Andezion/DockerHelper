@@ -21,13 +21,12 @@ target_link_libraries(docker_manager ${wxWidgets_LIBRARIES})
 
 add_custom_command(TARGET docker_manager POST_BUILD
     COMMAND chmod +x ${CMAKE_SOURCE_DIR}/scripts/docker_info.sh
-    COMMENT "Делаем docker_info.sh исполняемым"
 )
 
 install(TARGETS docker_manager DESTINATION bin)
 install(PROGRAMS scripts/docker_info.sh DESTINATION bin)
 
-message(STATUS "Конфигурация Docker Manager:")
-message(STATUS "  C++ стандарт: ${CMAKE_CXX_STANDARD}")
-message(STATUS "  wxWidgets версия: ${wxWidgets_VERSION_STRING}")
-message(STATUS "  Компилятор: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+message(STATUS "Configuration of Docker Manager:")
+message(STATUS "  C++ standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "  wxWidgets version: ${wxWidgets_VERSION_STRING}")
+message(STATUS "  Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
