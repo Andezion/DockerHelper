@@ -67,12 +67,12 @@ DockerManagerFrame::DockerManagerFrame(const wxString& title)
     CreateRunningPanel();
     CreateCleanupPanel();
     
-    notebook->AddPage(runningPanel, wxT("Активные контейнеры"), true);
-    notebook->AddPage(cleanupPanel, wxT("Очистка следов"));
+    notebook->AddPage(runningPanel, wxT("Active containers"), true);
+    notebook->AddPage(cleanupPanel, wxT("Cleanup traces"));
     
     mainSizer->Add(notebook, 1, wxEXPAND | wxALL, 5);
     
-    refreshButton = new wxButton(mainPanel, ID_REFRESH, wxT("Обновить всё"));
+    refreshButton = new wxButton(mainPanel, ID_REFRESH, wxT("Refresh all"));
     mainSizer->Add(refreshButton, 0, wxALIGN_CENTER | wxALL, 5);
     
     mainPanel->SetSizer(mainSizer);
