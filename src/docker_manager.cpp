@@ -158,20 +158,20 @@ void DockerManagerFrame::CreateCleanupPanel() {
     stoppedBox->Add(stoppedList, 1, wxEXPAND | wxALL, 5);
     
     removeContainerButton = new wxButton(cleanupPanel, ID_REMOVE_CONTAINER, 
-                                          wxT("Удалить контейнер"));
+                                          wxT("Remove container"));
     removeContainerButton->Enable(false);
     stoppedBox->Add(removeContainerButton, 0, wxALIGN_CENTER | wxALL, 5);
     mainSizer->Add(stoppedBox, 3, wxEXPAND | wxALL, 5);
     
     wxStaticBoxSizer* imagesBox = new wxStaticBoxSizer(wxVERTICAL, cleanupPanel,
-                                                        wxT("Неиспользуемые образы"));
+                                                        wxT("Unused images"));
     imagesList = new wxListCtrl(cleanupPanel, ID_IMAGES_LIST, 
                                  wxDefaultPosition, wxSize(-1, 120),
                                  wxLC_REPORT | wxLC_SINGLE_SEL);
     imagesList->AppendColumn(wxT("ID"), wxLIST_FORMAT_LEFT, 120);
-    imagesList->AppendColumn(wxT("Репозиторий"), wxLIST_FORMAT_LEFT, 250);
-    imagesList->AppendColumn(wxT("Тег"), wxLIST_FORMAT_LEFT, 100);
-    imagesList->AppendColumn(wxT("Размер"), wxLIST_FORMAT_LEFT, 100);
+    imagesList->AppendColumn(wxT("Repository"), wxLIST_FORMAT_LEFT, 250);
+    imagesList->AppendColumn(wxT("Tag"), wxLIST_FORMAT_LEFT, 100);
+    imagesList->AppendColumn(wxT("Size"), wxLIST_FORMAT_LEFT, 100);
     
     imagesBox->Add(imagesList, 0, wxEXPAND | wxALL, 5);
     
