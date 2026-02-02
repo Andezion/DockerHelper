@@ -311,8 +311,8 @@ void DockerManagerFrame::OnStop(wxCommandEvent& event) {
     wxString name = runningList->GetItemText(selected, 1);
     
     int response = wxMessageBox(
-        wxString::Format(wxT("Остановить контейнер '%s' (%s)?"), name, id),
-        wxT("Подтверждение"),
+        wxString::Format(wxT("Stop container '%s' (%s)?"), name, id),
+        wxT("Confirmation"),
         wxYES_NO | wxICON_QUESTION,
         this
     );
