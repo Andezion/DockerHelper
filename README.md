@@ -18,39 +18,6 @@ make
 ./build/docker_manager
 ```
 
-## Creating a portable package for distribution
-
-If you want to share the program with others so they can **simply download and run** it without compiling:
-
-### 1. Create a portable package
-
-```bash
-chmod +x create_portable_package.sh
-./create_portable_package.sh
-```
-
-This will create an archive `dist/docker-manager-X.X.X-linux-x86_64.tar.gz` that can be distributed.
-
-### 2. Users simply unpack and run
-
-```bash
-tar -xzf docker-manager-1.0.0-linux-x86_64.tar.gz
-cd docker-manager-1.0.0-linux-x86_64
-./docker-manager.sh
-```
-
-**That's it!** No compilation, no complex dependencies.
-
-## System installation (optional)
-
-If you want to install it system-wide for all users:
-
-```bash
-chmod +x install_system_wide.sh
-sudo ./install_system_wide.sh
-```
-
-After that, you can run it from anywhere with the `docker-manager` command.
 
 ## Requirements
 
