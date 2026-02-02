@@ -4,7 +4,6 @@
 #include <wx/notebook.h>
 #include <wx/listctrl.h>
 #include <wx/timer.h>
-#include <vector>
 #include <string>
 
 struct ContainerInfo {
