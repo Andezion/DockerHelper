@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(DockerManager CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -17,7 +17,8 @@ add_executable(docker_manager
     src/docker_commands.cpp
 )
 
-target_link_libraries(docker_manager ${wxWidgets_LIBRARIES})
+find_package(Threads REQUIRED)
+target_link_libraries(docker_manager ${wxWidgets_LIBRARIES} Threads::Threads)
 
 add_custom_command(TARGET docker_manager POST_BUILD
     COMMAND chmod +x ${CMAKE_SOURCE_DIR}/scripts/docker_info.sh
