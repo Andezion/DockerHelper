@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra
+CXXFLAGS = -std=c++14 -Wall -Wextra -pthread
 WX_CONFIG = wx-config
 
 WX_CXXFLAGS = $(shell $(WX_CONFIG) --cxxflags)
@@ -9,8 +9,8 @@ SRC_DIR = src
 BUILD_DIR = build
 SCRIPT_DIR = scripts
 
-SOURCES = $(SRC_DIR)/docker_manager.cpp
-OBJECTS = $(BUILD_DIR)/docker_manager.o
+SOURCES = $(SRC_DIR)/docker_manager.cpp $(SRC_DIR)/docker_commands.cpp
+OBJECTS = $(BUILD_DIR)/docker_manager.o $(BUILD_DIR)/docker_commands.o
 
 TARGET = docker_manager
 
@@ -19,11 +19,11 @@ all: $(BUILD_DIR) $(TARGET) make_executable
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/docker_manager.h
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(SRC_DIR)/docker_manager.h $(SRC_DIR)/docker_commands.h
 	$(CXX) $(CXXFLAGS) $(WX_CXXFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $(TARGET) $(WX_LIBS)
+	$(CXX) $(OBJECTS) -o $(TARGET) $(WX_LIBS) -lpthread
 
 make_executable:
 	chmod +x $(SCRIPT_DIR)/docker_info.sh
