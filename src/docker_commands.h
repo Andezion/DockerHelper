@@ -28,9 +28,14 @@ struct SystemInfo {
     int container_count;
 };
 
+struct CommandResult {
+    std::string output;
+    int exit_code;
+};
+
 class DockerCommands {
 public:
-    static std::string ExecuteCommand(const std::string& command);
+    static CommandResult ExecuteCommand(const std::string& command);
     static std::vector<ContainerInfo> GetRunningContainers();
     static std::vector<ContainerInfo> GetStoppedContainers();
     static std::vector<ImageInfo> GetUnusedImages();
@@ -42,4 +47,7 @@ public:
     static bool RemoveImage(const std::string& id);
     static bool RemoveVolume(const std::string& name);
     static bool PruneAll();
+
+private:
+    static bool IsValidDockerIdentifier(const std::string& str);
 };
