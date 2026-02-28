@@ -68,7 +68,7 @@ CommandResult DockerCommands::ExecuteCommand(const std::string& command) {
 std::vector<ContainerInfo> DockerCommands::GetRunningContainers() {
     std::vector<ContainerInfo> containers;
     CommandResult res = ExecuteCommand(
-        FindDockerBinary() + " ps --format '{{.ID}}|{{.Names}}|{{.Status}}|{{.Image}}' 2>/dev/null");
+        FindDockerBinary() + " ps --format '{{.ID}}|{{.Names}}|{{.State}}|{{.Status}}|{{.Image}}' 2>/dev/null");
 
     if (res.exit_code != 0) return containers;
 
@@ -83,6 +83,7 @@ std::vector<ContainerInfo> DockerCommands::GetRunningContainers() {
 
         std::getline(lineStream, info.id, '|');
         std::getline(lineStream, info.name, '|');
+        std::getline(lineStream, info.state, '|');
         std::getline(lineStream, info.status, '|');
         std::getline(lineStream, info.image, '|');
 
@@ -97,7 +98,7 @@ std::vector<ContainerInfo> DockerCommands::GetStoppedContainers() {
     CommandResult res = ExecuteCommand(
         FindDockerBinary() + " ps -a --filter 'status=exited' --filter 'status=created' "
         "--filter 'status=dead' "
-        "--format '{{.ID}}|{{.Names}}|{{.Status}}|{{.Image}}' 2>/dev/null");
+        "--format '{{.ID}}|{{.Names}}|{{.State}}|{{.Status}}|{{.Image}}' 2>/dev/null");
 
     if (res.exit_code != 0) return containers;
 
@@ -112,6 +113,35 @@ std::vector<ContainerInfo> DockerCommands::GetStoppedContainers() {
 
         std::getline(lineStream, info.id, '|');
         std::getline(lineStream, info.name, '|');
+        std::getline(lineStream, info.state, '|');
+        std::getline(lineStream, info.status, '|');
+        std::getline(lineStream, info.image, '|');
+
+        containers.push_back(info);
+    }
+
+    return containers;
+}
+
+std::vector<ContainerInfo> DockerCommands::GetAllContainers() {
+    std::vector<ContainerInfo> containers;
+    CommandResult res = ExecuteCommand(
+        FindDockerBinary() + " ps -a --format '{{.ID}}|{{.Names}}|{{.State}}|{{.Status}}|{{.Image}}' 2>/dev/null");
+
+    if (res.exit_code != 0) return containers;
+
+    std::istringstream stream(res.output);
+    std::string line;
+
+    while (std::getline(stream, line)) {
+        if (line.empty()) continue;
+
+        ContainerInfo info;
+        std::istringstream lineStream(line);
+
+        std::getline(lineStream, info.id, '|');
+        std::getline(lineStream, info.name, '|');
+        std::getline(lineStream, info.state, '|');
         std::getline(lineStream, info.status, '|');
         std::getline(lineStream, info.image, '|');
 
@@ -149,10 +179,64 @@ std::vector<ImageInfo> DockerCommands::GetUnusedImages() {
     return images;
 }
 
+std::vector<ImageInfo> DockerCommands::GetAllImages() {
+    std::vector<ImageInfo> images;
+    CommandResult res = ExecuteCommand(
+        FindDockerBinary() + " images -a "
+        "--format '{{.ID}}|{{.Repository}}|{{.Tag}}|{{.Size}}' 2>/dev/null");
+
+    if (res.exit_code != 0) return images;
+
+    std::istringstream stream(res.output);
+    std::string line;
+
+    while (std::getline(stream, line)) {
+        if (line.empty()) continue;
+
+        ImageInfo info;
+        std::istringstream lineStream(line);
+
+        std::getline(lineStream, info.id, '|');
+        std::getline(lineStream, info.repository, '|');
+        std::getline(lineStream, info.tag, '|');
+        std::getline(lineStream, info.size, '|');
+
+        images.push_back(info);
+    }
+
+    return images;
+}
+
 std::vector<VolumeInfo> DockerCommands::GetUnusedVolumes() {
     std::vector<VolumeInfo> volumes;
     CommandResult res = ExecuteCommand(
         FindDockerBinary() + " volume ls -f 'dangling=true' "
+        "--format '{{.Name}}|{{.Driver}}' 2>/dev/null");
+
+    if (res.exit_code != 0) return volumes;
+
+    std::istringstream stream(res.output);
+    std::string line;
+
+    while (std::getline(stream, line)) {
+        if (line.empty()) continue;
+
+        VolumeInfo info;
+        std::istringstream lineStream(line);
+
+        std::getline(lineStream, info.name, '|');
+        std::getline(lineStream, info.driver, '|');
+
+        volumes.push_back(info);
+    }
+
+    return volumes;
+}
+
+std::vector<VolumeInfo> DockerCommands::GetAllVolumes() {
+    std::vector<VolumeInfo> volumes;
+    CommandResult res = ExecuteCommand(
+        FindDockerBinary() + " volume ls "
         "--format '{{.Name}}|{{.Driver}}' 2>/dev/null");
 
     if (res.exit_code != 0) return volumes;
@@ -248,13 +332,16 @@ bool DockerCommands::StopAllContainers() {
     CommandResult ids = ExecuteCommand(FindDockerBinary() + " ps -q 2>/dev/null");
     if (ids.exit_code != 0 || ids.output.empty()) return false;
 
-    std::string trimmed = ids.output;
-    while (!trimmed.empty() && (trimmed.back() == '\n' || trimmed.back() == ' ')) {
-        trimmed.pop_back();
+    std::string idList = ids.output;
+    for (char& c : idList) {
+        if (c == '\n') c = ' ';
     }
-    if (trimmed.empty()) return false;
+    while (!idList.empty() && idList.back() == ' ') {
+        idList.pop_back();
+    }
+    if (idList.empty()) return false;
 
-    CommandResult res = ExecuteCommand(FindDockerBinary() + " stop " + trimmed + " 2>/dev/null");
+    CommandResult res = ExecuteCommand(FindDockerBinary() + " stop " + idList + " 2>/dev/null");
     return res.exit_code == 0;
 }
 
