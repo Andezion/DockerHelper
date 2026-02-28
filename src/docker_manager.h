@@ -19,8 +19,7 @@ private:
     wxPanel* runningPanel;
     wxPanel* cleanupPanel;
     
-    wxListCtrl* runningList;
-    wxListCtrl* stoppedList;
+    wxListCtrl* runningList;   
     wxListCtrl* imagesList;
     wxListCtrl* volumesList;
     
@@ -43,10 +42,9 @@ private:
     void CreateRunningPanel();
     void CreateCleanupPanel();
     
-    void PopulateRunningContainers(const std::vector<ContainerInfo>& containers);
-    void PopulateStoppedContainers(const std::vector<ContainerInfo>& containers);
-    void PopulateUnusedImages(const std::vector<ImageInfo>& images);
-    void PopulateUnusedVolumes(const std::vector<VolumeInfo>& volumes);
+    void PopulateAllContainers(const std::vector<ContainerInfo>& containers);
+    void PopulateAllImages(const std::vector<ImageInfo>& images);
+    void PopulateAllVolumes(const std::vector<VolumeInfo>& volumes);
     void UpdateSystemInfoUI(const SystemInfo& info);
     void RefreshAllAsync();
     
@@ -60,7 +58,6 @@ private:
     void OnTimer(wxTimerEvent& event);
     void OnClose(wxCloseEvent& event);
     void OnRunningItemSelected(wxListEvent& event);
-    void OnStoppedItemSelected(wxListEvent& event);
     void OnImageItemSelected(wxListEvent& event);
     void OnVolumeItemSelected(wxListEvent& event);
     
