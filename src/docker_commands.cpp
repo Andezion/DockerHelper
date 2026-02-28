@@ -3,12 +3,47 @@
 #include <cstdio>
 #include <sstream>
 #include <algorithm>
+#include <unistd.h>
 
 bool DockerCommands::IsValidDockerIdentifier(const std::string& str) {
     if (str.empty() || str.size() > 256) return false;
     return std::all_of(str.begin(), str.end(), [](char c) {
         return std::isalnum(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     });
+}
+
+std::string DockerCommands::FindDockerBinary() {
+    static std::string cached;
+    if (!cached.empty()) return cached;
+
+    const char* candidates[] = {
+        "/usr/bin/docker",
+        "/usr/local/bin/docker",
+        "/snap/bin/docker",
+        "/opt/homebrew/bin/docker",
+        nullptr
+    };
+    for (int i = 0; candidates[i]; ++i) {
+        if (access(candidates[i], X_OK) == 0) {
+            cached = candidates[i];
+            return cached;
+        }
+    }
+    cached = "docker";
+    return cached;
+}
+
+bool DockerCommands::IsDockerAvailable() {
+    CommandResult res = ExecuteCommand(
+        FindDockerBinary() + " info 2>/dev/null");
+    return res.exit_code == 0;
+}
+
+std::string DockerCommands::GetDockerError() {
+    CommandResult res = ExecuteCommand(
+        FindDockerBinary() + " info 2>&1");
+    if (res.exit_code == 0) return "";
+    return res.output;
 }
 
 CommandResult DockerCommands::ExecuteCommand(const std::string& command) {
@@ -33,7 +68,7 @@ CommandResult DockerCommands::ExecuteCommand(const std::string& command) {
 std::vector<ContainerInfo> DockerCommands::GetRunningContainers() {
     std::vector<ContainerInfo> containers;
     CommandResult res = ExecuteCommand(
-        "docker ps --format '{{.ID}}|{{.Names}}|{{.Status}}|{{.Image}}' 2>/dev/null");
+        FindDockerBinary() + " ps --format '{{.ID}}|{{.Names}}|{{.Status}}|{{.Image}}' 2>/dev/null");
 
     if (res.exit_code != 0) return containers;
 
@@ -60,7 +95,7 @@ std::vector<ContainerInfo> DockerCommands::GetRunningContainers() {
 std::vector<ContainerInfo> DockerCommands::GetStoppedContainers() {
     std::vector<ContainerInfo> containers;
     CommandResult res = ExecuteCommand(
-        "docker ps -a --filter 'status=exited' --filter 'status=created' "
+        FindDockerBinary() + " ps -a --filter 'status=exited' --filter 'status=created' "
         "--filter 'status=dead' "
         "--format '{{.ID}}|{{.Names}}|{{.Status}}|{{.Image}}' 2>/dev/null");
 
@@ -89,7 +124,7 @@ std::vector<ContainerInfo> DockerCommands::GetStoppedContainers() {
 std::vector<ImageInfo> DockerCommands::GetUnusedImages() {
     std::vector<ImageInfo> images;
     CommandResult res = ExecuteCommand(
-        "docker images -f 'dangling=true' "
+        FindDockerBinary() + " images -f 'dangling=true' "
         "--format '{{.ID}}|{{.Repository}}|{{.Tag}}|{{.Size}}' 2>/dev/null");
 
     if (res.exit_code != 0) return images;
@@ -117,7 +152,7 @@ std::vector<ImageInfo> DockerCommands::GetUnusedImages() {
 std::vector<VolumeInfo> DockerCommands::GetUnusedVolumes() {
     std::vector<VolumeInfo> volumes;
     CommandResult res = ExecuteCommand(
-        "docker volume ls -f 'dangling=true' "
+        FindDockerBinary() + " volume ls -f 'dangling=true' "
         "--format '{{.Name}}|{{.Driver}}' 2>/dev/null");
 
     if (res.exit_code != 0) return volumes;
@@ -147,7 +182,7 @@ SystemInfo DockerCommands::GetSystemInfo() {
     info.container_count = 0;
 
     CommandResult res = ExecuteCommand(
-        "docker stats --no-stream --format '{{.CPUPerc}}|{{.MemUsage}}' 2>/dev/null");
+        FindDockerBinary() + " stats --no-stream --format '{{.CPUPerc}}|{{.MemUsage}}' 2>/dev/null");
 
     if (res.exit_code != 0) return info;
 
@@ -205,12 +240,12 @@ SystemInfo DockerCommands::GetSystemInfo() {
 
 bool DockerCommands::StopContainer(const std::string& id) {
     if (!IsValidDockerIdentifier(id)) return false;
-    CommandResult res = ExecuteCommand("docker stop " + id + " 2>/dev/null");
+    CommandResult res = ExecuteCommand(FindDockerBinary() + " stop " + id + " 2>/dev/null");
     return res.exit_code == 0;
 }
 
 bool DockerCommands::StopAllContainers() {
-    CommandResult ids = ExecuteCommand("docker ps -q 2>/dev/null");
+    CommandResult ids = ExecuteCommand(FindDockerBinary() + " ps -q 2>/dev/null");
     if (ids.exit_code != 0 || ids.output.empty()) return false;
 
     std::string trimmed = ids.output;
@@ -219,29 +254,29 @@ bool DockerCommands::StopAllContainers() {
     }
     if (trimmed.empty()) return false;
 
-    CommandResult res = ExecuteCommand("docker stop " + trimmed + " 2>/dev/null");
+    CommandResult res = ExecuteCommand(FindDockerBinary() + " stop " + trimmed + " 2>/dev/null");
     return res.exit_code == 0;
 }
 
 bool DockerCommands::RemoveContainer(const std::string& id) {
     if (!IsValidDockerIdentifier(id)) return false;
-    CommandResult res = ExecuteCommand("docker rm " + id + " 2>/dev/null");
+    CommandResult res = ExecuteCommand(FindDockerBinary() + " rm " + id + " 2>/dev/null");
     return res.exit_code == 0;
 }
 
 bool DockerCommands::RemoveImage(const std::string& id) {
     if (!IsValidDockerIdentifier(id)) return false;
-    CommandResult res = ExecuteCommand("docker rmi " + id + " 2>/dev/null");
+    CommandResult res = ExecuteCommand(FindDockerBinary() + " rmi " + id + " 2>/dev/null");
     return res.exit_code == 0;
 }
 
 bool DockerCommands::RemoveVolume(const std::string& name) {
     if (!IsValidDockerIdentifier(name)) return false;
-    CommandResult res = ExecuteCommand("docker volume rm " + name + " 2>/dev/null");
+    CommandResult res = ExecuteCommand(FindDockerBinary() + " volume rm " + name + " 2>/dev/null");
     return res.exit_code == 0;
 }
 
 bool DockerCommands::PruneAll() {
-    CommandResult res = ExecuteCommand("docker system prune -af --volumes 2>/dev/null");
+    CommandResult res = ExecuteCommand(FindDockerBinary() + " system prune -af --volumes 2>/dev/null");
     return res.exit_code == 0;
 }
