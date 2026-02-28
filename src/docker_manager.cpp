@@ -5,10 +5,9 @@
 wxDEFINE_EVENT(wxEVT_UPDATE_COMPLETE, wxThreadEvent);
 
 struct UpdateData {
-    std::vector<ContainerInfo> runningContainers;
-    std::vector<ContainerInfo> stoppedContainers;
-    std::vector<ImageInfo> unusedImages;
-    std::vector<VolumeInfo> unusedVolumes;
+    std::vector<ContainerInfo> allContainers;
+    std::vector<ImageInfo> allImages;
+    std::vector<VolumeInfo> allVolumes;
     SystemInfo systemInfo;
 };
 
@@ -21,17 +20,15 @@ protected:
     virtual ExitCode Entry() override {
         UpdateData* data = new UpdateData();
 
-        auto futRunning = std::async(std::launch::async, DockerCommands::GetRunningContainers);
-        auto futStopped = std::async(std::launch::async, DockerCommands::GetStoppedContainers);
-        auto futImages  = std::async(std::launch::async, DockerCommands::GetUnusedImages);
-        auto futVolumes = std::async(std::launch::async, DockerCommands::GetUnusedVolumes);
+        auto futAll     = std::async(std::launch::async, DockerCommands::GetAllContainers);
+        auto futImages  = std::async(std::launch::async, DockerCommands::GetAllImages);
+        auto futVolumes = std::async(std::launch::async, DockerCommands::GetAllVolumes);
         auto futSystem  = std::async(std::launch::async, DockerCommands::GetSystemInfo);
 
-        data->runningContainers = futRunning.get();
-        data->stoppedContainers = futStopped.get();
-        data->unusedImages = futImages.get();
-        data->unusedVolumes = futVolumes.get();
-        data->systemInfo = futSystem.get();
+        data->allContainers = futAll.get();
+        data->allImages     = futImages.get();
+        data->allVolumes    = futVolumes.get();
+        data->systemInfo    = futSystem.get();
 
         wxThreadEvent* event = new wxThreadEvent(wxEVT_UPDATE_COMPLETE);
         event->SetPayload(data);
@@ -55,8 +52,7 @@ wxBEGIN_EVENT_TABLE(DockerManagerFrame, wxFrame)
     EVT_TIMER(ID_TIMER, DockerManagerFrame::OnTimer)
     EVT_CLOSE(DockerManagerFrame::OnClose)
     EVT_LIST_ITEM_SELECTED(ID_RUNNING_LIST, DockerManagerFrame::OnRunningItemSelected)
-    EVT_LIST_ITEM_SELECTED(ID_STOPPED_LIST, DockerManagerFrame::OnStoppedItemSelected)
-    EVT_LIST_ITEM_SELECTED(ID_IMAGES_LIST, DockerManagerFrame::OnImageItemSelected)
+    EVT_LIST_ITEM_SELECTED(ID_IMAGES_LIST,  DockerManagerFrame::OnImageItemSelected)
     EVT_LIST_ITEM_SELECTED(ID_VOLUMES_LIST, DockerManagerFrame::OnVolumeItemSelected)
     EVT_THREAD(ID_UPDATE_COMPLETE, DockerManagerFrame::OnUpdateComplete)
 wxEND_EVENT_TABLE()
@@ -74,8 +70,8 @@ DockerManagerFrame::DockerManagerFrame(const wxString& title)
     CreateRunningPanel();
     CreateCleanupPanel();
 
-    notebook->AddPage(runningPanel, wxT("Active containers"), true);
-    notebook->AddPage(cleanupPanel, wxT("Cleanup traces"));
+    notebook->AddPage(runningPanel, wxT("All containers"), true);
+    notebook->AddPage(cleanupPanel, wxT("Images & Volumes"));
 
     mainSizer->Add(notebook, 1, wxEXPAND | wxALL, 5);
 
@@ -145,20 +141,26 @@ void DockerManagerFrame::CreateRunningPanel() {
     runningList = new wxListCtrl(runningPanel, ID_RUNNING_LIST,
                                   wxDefaultPosition, wxDefaultSize,
                                   wxLC_REPORT | wxLC_SINGLE_SEL);
-    runningList->AppendColumn(wxT("ID"), wxLIST_FORMAT_LEFT, 120);
-    runningList->AppendColumn(wxT("Name"), wxLIST_FORMAT_LEFT, 200);
-    runningList->AppendColumn(wxT("Status"), wxLIST_FORMAT_LEFT, 250);
-    runningList->AppendColumn(wxT("Image"), wxLIST_FORMAT_LEFT, 300);
+    runningList->AppendColumn(wxT("ID"),     wxLIST_FORMAT_LEFT, 100);
+    runningList->AppendColumn(wxT("Name"),   wxLIST_FORMAT_LEFT, 200);
+    runningList->AppendColumn(wxT("State"),  wxLIST_FORMAT_LEFT, 80);
+    runningList->AppendColumn(wxT("Status"), wxLIST_FORMAT_LEFT, 220);
+    runningList->AppendColumn(wxT("Image"),  wxLIST_FORMAT_LEFT, 300);
 
     sizer->Add(runningList, 1, wxEXPAND | wxALL, 5);
 
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    stopButton = new wxButton(runningPanel, ID_STOP, wxT("Stop container"));
+    stopButton = new wxButton(runningPanel, ID_STOP, wxT("Stop"));
     stopButton->Enable(false);
     buttonSizer->Add(stopButton, 0, wxALL, 5);
 
-    stopAllButton = new wxButton(runningPanel, ID_STOP_ALL, wxT("Stop ALL"));
+    removeContainerButton = new wxButton(runningPanel, ID_REMOVE_CONTAINER,
+                                          wxT("Remove"));
+    removeContainerButton->Enable(false);
+    buttonSizer->Add(removeContainerButton, 0, wxALL, 5);
+
+    stopAllButton = new wxButton(runningPanel, ID_STOP_ALL, wxT("Stop ALL running"));
     stopAllButton->SetBackgroundColour(wxColour(255, 165, 0));
     buttonSizer->Add(stopAllButton, 0, wxALL, 5);
 
@@ -170,48 +172,30 @@ void DockerManagerFrame::CreateCleanupPanel() {
     cleanupPanel = new wxPanel(notebook);
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    wxStaticBoxSizer* stoppedBox = new wxStaticBoxSizer(wxVERTICAL, cleanupPanel,
-                                                         wxT("Stopped containers"));
-    stoppedList = new wxListCtrl(cleanupPanel, ID_STOPPED_LIST,
-                                  wxDefaultPosition, wxDefaultSize,
-                                  wxLC_REPORT | wxLC_SINGLE_SEL);
-    stoppedList->AppendColumn(wxT("ID"), wxLIST_FORMAT_LEFT, 120);
-    stoppedList->AppendColumn(wxT("Name"), wxLIST_FORMAT_LEFT, 200);
-    stoppedList->AppendColumn(wxT("Status"), wxLIST_FORMAT_LEFT, 200);
-    stoppedList->AppendColumn(wxT("Image"), wxLIST_FORMAT_LEFT, 250);
-
-    stoppedBox->Add(stoppedList, 1, wxEXPAND | wxALL, 5);
-
-    removeContainerButton = new wxButton(cleanupPanel, ID_REMOVE_CONTAINER,
-                                          wxT("Remove container"));
-    removeContainerButton->Enable(false);
-    stoppedBox->Add(removeContainerButton, 0, wxALIGN_CENTER | wxALL, 5);
-    mainSizer->Add(stoppedBox, 3, wxEXPAND | wxALL, 5);
-
     wxStaticBoxSizer* imagesBox = new wxStaticBoxSizer(wxVERTICAL, cleanupPanel,
-                                                        wxT("Unused images"));
+                                                        wxT("All images"));
     imagesList = new wxListCtrl(cleanupPanel, ID_IMAGES_LIST,
-                                 wxDefaultPosition, wxSize(-1, 120),
+                                 wxDefaultPosition, wxDefaultSize,
                                  wxLC_REPORT | wxLC_SINGLE_SEL);
-    imagesList->AppendColumn(wxT("ID"), wxLIST_FORMAT_LEFT, 120);
-    imagesList->AppendColumn(wxT("Repository"), wxLIST_FORMAT_LEFT, 250);
-    imagesList->AppendColumn(wxT("Tag"), wxLIST_FORMAT_LEFT, 100);
-    imagesList->AppendColumn(wxT("Size"), wxLIST_FORMAT_LEFT, 100);
+    imagesList->AppendColumn(wxT("ID"),         wxLIST_FORMAT_LEFT, 120);
+    imagesList->AppendColumn(wxT("Repository"), wxLIST_FORMAT_LEFT, 280);
+    imagesList->AppendColumn(wxT("Tag"),        wxLIST_FORMAT_LEFT, 120);
+    imagesList->AppendColumn(wxT("Size"),       wxLIST_FORMAT_LEFT, 100);
 
-    imagesBox->Add(imagesList, 0, wxEXPAND | wxALL, 5);
+    imagesBox->Add(imagesList, 1, wxEXPAND | wxALL, 5);
 
     removeImageButton = new wxButton(cleanupPanel, ID_REMOVE_IMAGE,
                                       wxT("Remove image"));
     removeImageButton->Enable(false);
     imagesBox->Add(removeImageButton, 0, wxALIGN_CENTER | wxALL, 5);
-    mainSizer->Add(imagesBox, 0, wxEXPAND | wxALL, 5);
+    mainSizer->Add(imagesBox, 1, wxEXPAND | wxALL, 5);
 
     wxStaticBoxSizer* volumesBox = new wxStaticBoxSizer(wxVERTICAL, cleanupPanel,
-                                                         wxT("Unused volumes"));
+                                                         wxT("All volumes"));
     volumesList = new wxListCtrl(cleanupPanel, ID_VOLUMES_LIST,
-                                  wxDefaultPosition, wxSize(-1, 80),
+                                  wxDefaultPosition, wxSize(-1, 110),
                                   wxLC_REPORT | wxLC_SINGLE_SEL);
-    volumesList->AppendColumn(wxT("Name"), wxLIST_FORMAT_LEFT, 400);
+    volumesList->AppendColumn(wxT("Name"),   wxLIST_FORMAT_LEFT, 450);
     volumesList->AppendColumn(wxT("Driver"), wxLIST_FORMAT_LEFT, 150);
 
     volumesBox->Add(volumesList, 0, wxEXPAND | wxALL, 5);
@@ -254,10 +238,9 @@ void DockerManagerFrame::OnUpdateComplete(wxThreadEvent& event) {
     UpdateData* data = event.GetPayload<UpdateData*>();
 
     if (data) {
-        PopulateRunningContainers(data->runningContainers);
-        PopulateStoppedContainers(data->stoppedContainers);
-        PopulateUnusedImages(data->unusedImages);
-        PopulateUnusedVolumes(data->unusedVolumes);
+        PopulateAllContainers(data->allContainers);
+        PopulateAllImages(data->allImages);
+        PopulateAllVolumes(data->allVolumes);
         UpdateSystemInfoUI(data->systemInfo);
 
         delete data;
@@ -266,41 +249,34 @@ void DockerManagerFrame::OnUpdateComplete(wxThreadEvent& event) {
     isUpdating = false;
 }
 
-void DockerManagerFrame::PopulateRunningContainers(
+void DockerManagerFrame::PopulateAllContainers(
     const std::vector<ContainerInfo>& containers) {
     runningList->DeleteAllItems();
 
     int row = 0;
-    for (const auto& container : containers) {
-        long index = runningList->InsertItem(row,
-                                              wxString::FromUTF8(container.id.c_str()));
-        runningList->SetItem(index, 1, wxString::FromUTF8(container.name.c_str()));
-        runningList->SetItem(index, 2, wxString::FromUTF8(container.status.c_str()));
-        runningList->SetItem(index, 3, wxString::FromUTF8(container.image.c_str()));
+    for (const auto& c : containers) {
+        long index = runningList->InsertItem(row, wxString::FromUTF8(c.id.c_str()));
+        runningList->SetItem(index, 1, wxString::FromUTF8(c.name.c_str()));
+        runningList->SetItem(index, 2, wxString::FromUTF8(c.state.c_str()));
+        runningList->SetItem(index, 3, wxString::FromUTF8(c.status.c_str()));
+        runningList->SetItem(index, 4, wxString::FromUTF8(c.image.c_str()));
+
+        if (c.state == "running") {
+            runningList->SetItemBackgroundColour(index, wxColour(200, 255, 200));  // green
+        } else if (c.state == "paused") {
+            runningList->SetItemBackgroundColour(index, wxColour(255, 255, 180));  // yellow
+        } else {
+            runningList->SetItemBackgroundColour(index, wxColour(255, 210, 210));  // red
+        }
+
         row++;
     }
 
     stopButton->Enable(false);
-}
-
-void DockerManagerFrame::PopulateStoppedContainers(
-    const std::vector<ContainerInfo>& containers) {
-    stoppedList->DeleteAllItems();
-
-    int row = 0;
-    for (const auto& container : containers) {
-        long index = stoppedList->InsertItem(row,
-                                              wxString::FromUTF8(container.id.c_str()));
-        stoppedList->SetItem(index, 1, wxString::FromUTF8(container.name.c_str()));
-        stoppedList->SetItem(index, 2, wxString::FromUTF8(container.status.c_str()));
-        stoppedList->SetItem(index, 3, wxString::FromUTF8(container.image.c_str()));
-        row++;
-    }
-
     removeContainerButton->Enable(false);
 }
 
-void DockerManagerFrame::PopulateUnusedImages(
+void DockerManagerFrame::PopulateAllImages(
     const std::vector<ImageInfo>& images) {
     imagesList->DeleteAllItems();
 
@@ -317,7 +293,7 @@ void DockerManagerFrame::PopulateUnusedImages(
     removeImageButton->Enable(false);
 }
 
-void DockerManagerFrame::PopulateUnusedVolumes(
+void DockerManagerFrame::PopulateAllVolumes(
     const std::vector<VolumeInfo>& volumes) {
     volumesList->DeleteAllItems();
 
@@ -391,12 +367,12 @@ void DockerManagerFrame::OnStopAll(wxCommandEvent& event) {
 }
 
 void DockerManagerFrame::OnRemoveContainer(wxCommandEvent& event) {
-    long selected = stoppedList->GetNextItem(-1, wxLIST_NEXT_ALL,
+    long selected = runningList->GetNextItem(-1, wxLIST_NEXT_ALL,
                                               wxLIST_STATE_SELECTED);
     if (selected == -1) return;
 
-    wxString id = stoppedList->GetItemText(selected, 0);
-    wxString name = stoppedList->GetItemText(selected, 1);
+    wxString id   = runningList->GetItemText(selected, 0);
+    wxString name = runningList->GetItemText(selected, 1);
 
     int response = wxMessageBox(
         wxString::Format(wxT("Remove container '%s' (%s)?"), name, id),
@@ -514,11 +490,15 @@ void DockerManagerFrame::OnClose(wxCloseEvent& event) {
 }
 
 void DockerManagerFrame::OnRunningItemSelected(wxListEvent& event) {
-    stopButton->Enable(true);
-}
+    long selected = runningList->GetNextItem(-1, wxLIST_NEXT_ALL,
+                                              wxLIST_STATE_SELECTED);
+    if (selected == -1) return;
 
-void DockerManagerFrame::OnStoppedItemSelected(wxListEvent& event) {
-    removeContainerButton->Enable(true);
+    wxString state = runningList->GetItemText(selected, 2);
+    bool isRunning = (state == wxT("running") || state == wxT("paused"));
+
+    stopButton->Enable(isRunning);
+    removeContainerButton->Enable(!isRunning);
 }
 
 void DockerManagerFrame::OnImageItemSelected(wxListEvent& event) {
