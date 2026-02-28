@@ -47,7 +47,10 @@ public:
     static bool RemoveImage(const std::string& id);
     static bool RemoveVolume(const std::string& name);
     static bool PruneAll();
+    static bool IsDockerAvailable();
+    static std::string GetDockerError();
 
 private:
     static bool IsValidDockerIdentifier(const std::string& str);
+    static std::string FindDockerBinary();
 };
