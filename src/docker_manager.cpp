@@ -87,8 +87,26 @@ DockerManagerFrame::DockerManagerFrame(const wxString& title)
     refreshTimer = new wxTimer(this, ID_TIMER);
     refreshTimer->Start(3000);
 
-    RefreshAllAsync();
     Centre();
+
+    if (!DockerCommands::IsDockerAvailable()) {
+        std::string errDetails = DockerCommands::GetDockerError();
+        wxString msg =
+            wxT("Docker is not accessible. The container list will be empty.\n\n")
+            wxT("Common causes:\n")
+            wxT("  - Docker daemon is not running.\n")
+            wxT("    Fix: sudo systemctl start docker\n\n")
+            wxT("  - Current user is not in the 'docker' group.\n")
+            wxT("    Fix: sudo usermod -aG docker $USER\n")
+            wxT("    Then log out and log back in.\n\n")
+            wxT("  - Docker is not installed.");
+        if (!errDetails.empty()) {
+            msg += wxT("\n\nDetails:\n") + wxString::FromUTF8(errDetails.c_str());
+        }
+        wxMessageBox(msg, wxT("Docker Unavailable"), wxOK | wxICON_WARNING, this);
+    }
+
+    RefreshAllAsync();
 }
 
 DockerManagerFrame::~DockerManagerFrame() {
