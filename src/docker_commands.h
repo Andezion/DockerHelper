@@ -6,7 +6,8 @@
 struct ContainerInfo {
     std::string id;
     std::string name;
-    std::string status;
+    std::string state;   // "running", "exited", "created", "paused", "dead", etc.
+    std::string status;  // human-readable, e.g. "Up 3 days", "Exited (0) 3 days ago"
     std::string image;
 };
 
@@ -49,6 +50,9 @@ public:
     static bool PruneAll();
     static bool IsDockerAvailable();
     static std::string GetDockerError();
+    static std::vector<ContainerInfo> GetAllContainers();
+    static std::vector<ImageInfo> GetAllImages();
+    static std::vector<VolumeInfo> GetAllVolumes();
 
 private:
     static bool IsValidDockerIdentifier(const std::string& str);
